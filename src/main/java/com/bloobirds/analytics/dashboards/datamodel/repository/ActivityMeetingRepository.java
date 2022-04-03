@@ -11,7 +11,6 @@ import com.bloobirds.analytics.dashboards.reports.abstraction.GroupBy;
 import com.bloobirds.analytics.dashboards.reports.abstraction.Segment;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
-import io.quarkus.logging.Log;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
@@ -19,7 +18,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -86,8 +84,8 @@ public class ActivityMeetingRepository implements PanacheRepositoryBase<Activity
             }
         }
 
-        Map<String,String> attr=filters.getAttributes(); //attribute key vs. string value
-        // @todo we have to think of a way to pass the most complex filters...Like%, number date
+        Map<String,String> attr=filters.getAttributes(); //attribute key vs. string value @todo we have to think
+        // of a way to pass the most complex filters...Like%, number date
 
         if(attr!=null) {
             StringBuilder queryAttr = new StringBuilder();
@@ -113,7 +111,7 @@ public class ActivityMeetingRepository implements PanacheRepositoryBase<Activity
             case AssignedTo -> groupBy = ", assignedto";
             case TargetMarket -> groupBy = ", targetmarket";
             default -> {
-                break; // @todo cómo tratar esto? memoria? puede venir cuañlquier cosa de company... y de lead?
+                break; // @todo resolve how to deal with this. anything could come from company's fields... same for lead
             }
         }
         if (filters.getGroupBy() != GroupBy.None) query.append(" group by activity_type, bbobjectid, tenantid").append(groupBy);
@@ -151,17 +149,23 @@ public class ActivityMeetingRepository implements PanacheRepositoryBase<Activity
             ExtendedAttribute attribute= new ExtendedAttribute();
             attribute.assign(ActivityMeetingLogicRoles.NONE,"1");
             a.attributes.put(BBObjectID.createSample(tenantID).getBBobjectID(),attribute);
+            if(r.nextInt(5)==1) { //20%
+                a.meetingResult=r.nextInt(10);
+                a.meetingResultID=BBObjectID.createSample(tenantID).getBBobjectID();
+            }
             persist(a);
         }
         if (a.getActivityType()!= Activity.ACTIVITY__TYPE__MEETING) return null;
         else return a;
     }
 
+
     public MeetingReport reportOverview(ReportFilters filters) {
         LocalDateTime now= LocalDateTime.now();
          // obtain all meetings that follow the criteria
         List<ActivityMeeting> meetings = listWithFilters(filters);
-        Log.info("queryTime:"+ ChronoUnit.MILLIS.between(now,LocalDateTime.now()));
+
+//        Log.info("queryTime:"+ ChronoUnit.MILLIS.between(now,LocalDateTime.now()));
 
 
         // init all local variables for calculating the stats
@@ -170,7 +174,7 @@ public class ActivityMeetingRepository implements PanacheRepositoryBase<Activity
         Map<Integer, Integer> meetingsPerSegment = new HashMap<>();
         HashMap<String, Integer> meetingsPerChannel = new HashMap<>();
         HashMap meetingsPerChannelPerPeriod = new HashMap<>();
-        Map<String, Integer> meetingsResults = new HashMap<>();
+        Map<Integer, Integer> meetingsResults = new HashMap<>();
         HashMap meetingResultsPerPeriod = new HashMap<>();
 
         LocalDate when = LocalDate.now();
@@ -183,6 +187,7 @@ public class ActivityMeetingRepository implements PanacheRepositoryBase<Activity
             case Weekly -> iterations = 52;
             case Monthly -> iterations = 12;
             case Quarterly -> iterations = 4;
+            default -> iterations = 1;
         }
 
         for (int i = 0; i < iterations; i++) {
@@ -191,6 +196,7 @@ public class ActivityMeetingRepository implements PanacheRepositoryBase<Activity
                 case Weekly -> key = when.minusWeeks(i).get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
                 case Monthly -> key = when.minusMonths(i).getMonthValue();
                 case Quarterly -> key = when.minus(i, IsoFields.QUARTER_YEARS).get(IsoFields.QUARTER_OF_YEAR);
+                default -> key = 1;
             }
             meetingsPerSegment.put(key, value);
             meetingsPerChannelPerPeriod.put(key, new HashMap());
@@ -205,7 +211,7 @@ public class ActivityMeetingRepository implements PanacheRepositoryBase<Activity
         Map<Integer,List<ActivityMeeting>> mListPerSegment= meetings.stream()
                 .collect(Collectors.groupingBy(m -> categorize(filters.getSegmentBy(),m)));
         mListPerSegment.keySet().forEach(k -> meetingsPerSegment.put(k,mListPerSegment.get(k).size()));
-        result.setMeetingsPerSegment(meetingsPerSegment.values());
+        result.setMeetingsPerSegment(meetingsPerSegment);
 
         // meetings per channel
         Map<Integer,List<ActivityMeeting>> mListPerChannel= meetings.stream()
@@ -223,9 +229,22 @@ public class ActivityMeetingRepository implements PanacheRepositoryBase<Activity
         });
         result.setMeetingsPerChannelPerPeriod(meetingsPerChannelPerPeriod);
 
-        // Map<String, Integer> meetingsResults;
+        // meetings Results;
+
+        Map<Integer,List<ActivityMeeting>> mListPerResult= meetings.stream()
+                .collect(Collectors.groupingBy(m -> m.meetingResult)); // @todo fieldID could be null! negotiate "No Value"
+        mListPerResult.keySet().forEach(k -> meetingsResults.put(k,mListPerResult.get(k).size()));
+        result.setMeetingsResults(meetingsResults);
 
         // HashMap<Integer, HashMap<String, Integer>>  meetingsResultsPerPeriod;
+        mListPerResult.forEach((k,v) -> {
+            Map<Integer, List<ActivityMeeting>> oneResultTypePerPeriod = v.stream().collect(Collectors.groupingBy(m -> categorize(filters.getSegmentBy(), m)));
+            oneResultTypePerPeriod.keySet().forEach(period -> {
+                Map<Integer, Integer> onePeriod = (Map<Integer, Integer>) meetingResultsPerPeriod.get(period);
+                onePeriod.put(k,oneResultTypePerPeriod.get(period).size());
+            });
+        });
+        result.setMeetingsResultsPerPeriod(meetingResultsPerPeriod);
 
         return result;
     }
@@ -240,6 +259,7 @@ public class ActivityMeetingRepository implements PanacheRepositoryBase<Activity
                 case Weekly -> category = localDate.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
                 case Monthly -> category = localDate.getMonthValue();
                 case Quarterly -> category = localDate.get(IsoFields.QUARTER_OF_YEAR);
+                default -> category = 1;
             }
             return category;
     }

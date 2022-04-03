@@ -11,14 +11,14 @@ public class MeetingReport {
 
     private int totalMeetings;
 
-    private Collection<Integer> meetingsPerSegment;
+    private Map<Integer, Integer> meetingsPerSegment;
 
     private Map<String, Integer> meetingsPerChannel;
 
     private Map<Integer, Map<String, Integer>> meetingsPerChannelPerPeriod;
 
-    private Map<String, Integer> meetingsResults;
+    private Map<Integer, Integer> meetingsResults;
 
-    private HashMap<Integer, HashMap<String, Integer>>  meetingsResultsPerPeriod;
+    private HashMap<Integer, HashMap<Integer, Integer>>  meetingsResultsPerPeriod;
 
 }
