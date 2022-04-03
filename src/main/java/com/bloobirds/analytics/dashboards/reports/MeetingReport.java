@@ -10,15 +10,12 @@ import java.util.Map;
 public class MeetingReport {
 
     private int totalMeetings;
-
     private Map<Integer, Integer> meetingsPerSegment;
 
     private Map<String, Integer> meetingsPerChannel;
-
     private Map<Integer, Map<String, Integer>> meetingsPerChannelPerPeriod;
 
     private Map<Integer, Integer> meetingsResults;
-
     private HashMap<Integer, HashMap<Integer, Integer>>  meetingsResultsPerPeriod;
 
 }
