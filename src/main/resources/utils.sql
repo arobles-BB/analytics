@@ -1,0 +1,31 @@
+-- REVOKE ALL ON DATABASE quarkus FROM public;
+-- DROP DATABASE quarkus;
+-- CREATE DATABASE quarkus;
+-- GRANT pg_write_all_data TO e493soly8adltgya;
+--
+-- REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public  FROM e493soly8adltgya;
+-- REVOKE ALL PRIVILEGES ON DATABASE quarkus FROM e493soly8adltgya;
+-- DROP USER IF EXISTS e493soly8adltgya;
+--
+-- CREATE USER e493soly8adltgya with encrypted password 'bloobirds';
+-- GRANT ALL PRIVILEGES ON DATABASE quarkus TO e493soly8adltgya;
+-- GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public  TO e493soly8adltgya;
+--
+--
+-- ALTER TABLE contact ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE company ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE activity ENABLE ROW LEVEL SECURITY;
+-- DROP POLICY IF EXISTS contact_managers ON contact;
+-- DROP POLICY IF EXISTS company_managers ON company;
+-- DROP POLICY IF EXISTS activity_managers ON activity;
+-- CREATE POLICY contact_managers ON contact FOR ALL TO PUBLIC USING (tenantid = current_user);
+-- CREATE POLICY company_managers ON company FOR ALL TO PUBLIC USING (tenantid = current_user);
+-- CREATE POLICY activity_managers ON activity FOR ALL TO PUBLIC USING (tenantid = current_user);
+--
+--
+-- create index date_index on activity (bbobjectid, tenantid, date);
+--
+--
+-- EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS) SELECT * FROM activity WHERE date BETWEEN '2021-03-05' AND '2024-03-22' AND targetmarket = 'RxPX1A2ljuHPD3e4' AND icp = 'Uj43UOk5OxxeS82I' GROUP BY activity_type, bbobjectid, tenantid, scenario;
+-- EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS) SELECT * FROM activity WHERE date BETWEEN '2022-03-01' AND '2022-02-22' AND targetmarket in (0,2);
+--
