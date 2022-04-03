@@ -14,11 +14,10 @@ import java.util.Arrays;
 @RequestScoped
 public class CustomTenantResolver implements TenantResolver {
 
-    String[] tenantID = {"bloobirds","ctaima","incapto","powermba"}; // no usar mayusculas!!
+    String[] tenantID = {"e493soly8adltgya","grhntxyuthif6opr"}; // no usar mayusculas!!
 
     @Inject
     RoutingContext context;
-
 
     @Inject
     DataSource defaultDataSource;
@@ -35,18 +34,11 @@ public class CustomTenantResolver implements TenantResolver {
             if (defaultDataSource.getConnection().getSchema()==null) defaultDataSource.getConnection().setSchema("public");
         } catch (SQLException e) {
             Log.error("Problems connecting to the DB[:"+e.getSQLState()+"] "+e.getMessage());
+            return getDefaultTenantId();
         }
-        String path = context.request().path();
-        String[] parts = path.split("/");
+        context.put("tenantId", tenantID[0]);
 
-        if (parts.length <= 1) return getDefaultTenantId();
-
-        String tenant = parts[parts.length-1];
-        if(Arrays.binarySearch(tenantID,tenant)<0) tenant=getDefaultTenantId();
-
-        context.put("tenantId", tenant);
-
-        return tenant;
+        return tenantID[0];
     }
 
 }

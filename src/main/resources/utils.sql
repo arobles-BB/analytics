@@ -2,30 +2,45 @@
 -- DROP DATABASE quarkus;
 -- CREATE DATABASE quarkus;
 -- GRANT pg_write_all_data TO e493soly8adltgya;
+
+--    REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public  FROM e493soly8adltgya;
+--    REVOKE ALL PRIVILEGES ON DATABASE quarkus FROM e493soly8adltgya;
+--    DROP USER IF EXISTS e493soly8adltgya;
 --
--- REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public  FROM e493soly8adltgya;
--- REVOKE ALL PRIVILEGES ON DATABASE quarkus FROM e493soly8adltgya;
--- DROP USER IF EXISTS e493soly8adltgya;
+--    CREATE USER e493soly8adltgya with encrypted password 'bloobirds';
+--    GRANT ALL PRIVILEGES ON DATABASE quarkus TO e493soly8adltgya;
+--    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public  TO e493soly8adltgya;
 --
--- CREATE USER e493soly8adltgya with encrypted password 'bloobirds';
--- GRANT ALL PRIVILEGES ON DATABASE quarkus TO e493soly8adltgya;
--- GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public  TO e493soly8adltgya;
+--    ALTER TABLE contact ENABLE ROW LEVEL SECURITY;
+--    ALTER TABLE contact_attributes ENABLE ROW LEVEL SECURITY;
+--    ALTER TABLE contact_aud ENABLE ROW LEVEL SECURITY;
+--    ALTER TABLE company ENABLE ROW LEVEL SECURITY;
+--    ALTER TABLE company_attributes ENABLE ROW LEVEL SECURITY;
+--    ALTER TABLE company_aud ENABLE ROW LEVEL SECURITY;
+--    ALTER TABLE activity ENABLE ROW LEVEL SECURITY;
+--    ALTER TABLE activity_attributes ENABLE ROW LEVEL SECURITY;
+--    ALTER TABLE opportunity ENABLE ROW LEVEL SECURITY;
+--    ALTER TABLE opportunity_attributes ENABLE ROW LEVEL SECURITY;
+--    ALTER TABLE opportunity_aud ENABLE ROW LEVEL SECURITY;
+--    ALTER TABLE task ENABLE ROW LEVEL SECURITY;
+--    ALTER TABLE task_attributes ENABLE ROW LEVEL SECURITY;
+--    ALTER TABLE task_aud ENABLE ROW LEVEL SECURITY;
+--    ALTER TABLE salesuser ENABLE ROW LEVEL SECURITY;
 --
+--    CREATE POLICY contact_managers ON contact FOR ALL TO PUBLIC USING (tenantid = current_user);
+--    CREATE POLICY contact_attributes_managers ON contact_attributes FOR ALL TO PUBLIC USING (attenantid = current_user);
+--    CREATE POLICY contact_aud_managers ON contact_aud FOR ALL TO PUBLIC USING (tenantid = current_user);
+--    CREATE POLICY company_managers ON company FOR ALL TO PUBLIC USING (tenantid = current_user);
+--    CREATE POLICY company_attributes_managers ON company_attributes FOR ALL TO PUBLIC USING (attenantid = current_user);
+--    CREATE POLICY company_aud_managers ON company_aud FOR ALL TO PUBLIC USING (tenantid = current_user);
+--    CREATE POLICY activity_managers ON activity FOR ALL TO PUBLIC USING (tenantid = current_user);
+--    CREATE POLICY activity_attributes_managers ON activity_attributes FOR ALL TO PUBLIC USING (attenantid = current_user);
+--    CREATE POLICY opportunity_managers ON opportunity FOR ALL TO PUBLIC USING (tenantid = current_user);
+--    CREATE POLICY opportunity_attributes_managers ON opportunity_attributes FOR ALL TO PUBLIC USING (attenantid = current_user);
+--    CREATE POLICY opportunity_aud_managers ON opportunity_aud FOR ALL TO PUBLIC USING (tenantid = current_user);
+--    CREATE POLICY task_managers ON task FOR ALL TO PUBLIC USING (tenantid = current_user);
+--    CREATE POLICY task_attributes_managers ON task_attributes FOR ALL TO PUBLIC USING (attenantid = current_user);
+--    CREATE POLICY task_aud_managers ON task_aud FOR ALL TO PUBLIC USING (tenantid = current_user);
+--    CREATE POLICY salesuser_managers ON salesuser FOR ALL TO PUBLIC USING (tenantid = current_user);
 --
--- ALTER TABLE contact ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE company ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE activity ENABLE ROW LEVEL SECURITY;
--- DROP POLICY IF EXISTS contact_managers ON contact;
--- DROP POLICY IF EXISTS company_managers ON company;
--- DROP POLICY IF EXISTS activity_managers ON activity;
--- CREATE POLICY contact_managers ON contact FOR ALL TO PUBLIC USING (tenantid = current_user);
--- CREATE POLICY company_managers ON company FOR ALL TO PUBLIC USING (tenantid = current_user);
--- CREATE POLICY activity_managers ON activity FOR ALL TO PUBLIC USING (tenantid = current_user);
---
---
--- create index date_index on activity (bbobjectid, tenantid, date);
---
---
--- EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS) SELECT * FROM activity WHERE date BETWEEN '2021-03-05' AND '2024-03-22' AND targetmarket = 'RxPX1A2ljuHPD3e4' AND icp = 'Uj43UOk5OxxeS82I' GROUP BY activity_type, bbobjectid, tenantid, scenario;
--- EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS) SELECT * FROM activity WHERE date BETWEEN '2022-03-01' AND '2022-02-22' AND targetmarket in (0,2);
---
+--    CREATE INDEX date_index ON activity (bbobjectid, tenantid, date);

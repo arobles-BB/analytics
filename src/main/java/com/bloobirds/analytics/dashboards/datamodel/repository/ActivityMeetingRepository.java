@@ -11,12 +11,15 @@ import com.bloobirds.analytics.dashboards.reports.abstraction.GroupBy;
 import com.bloobirds.analytics.dashboards.reports.abstraction.Segment;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+import io.quarkus.logging.Log;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -101,18 +104,19 @@ public class ActivityMeetingRepository implements PanacheRepositoryBase<Activity
             }
         }
 
+        String groupBy="";
         switch (filters.getGroupBy()) {
-            case Scenario -> params.put("groupby", "scenario");
-            case User -> params.put("groupby", "user");
-            case ICP -> params.put("groupby", "icp");
-            case Source -> params.put("groupby", "source");
-            case AssignedTo -> params.put("groupby", "assignedto");
-            case TargetMarket -> params.put("groupby", "targetmarket");
+            case Scenario -> groupBy = ", scenario";
+            case User -> groupBy = ", user";
+            case ICP -> groupBy = ", icp";
+            case Source -> groupBy = ", source";
+            case AssignedTo -> groupBy = ", assignedto";
+            case TargetMarket -> groupBy = ", targetmarket";
             default -> {
                 break; // @todo cómo tratar esto? memoria? puede venir cuañlquier cosa de company... y de lead?
             }
         }
-        if (filters.getGroupBy() != GroupBy.None) query.append(" group by activity_type, bbobjectid, tenantid, :groupby");
+        if (filters.getGroupBy() != GroupBy.None) query.append(" group by activity_type, bbobjectid, tenantid").append(groupBy);
 
         return query.toString();
     }
@@ -154,9 +158,11 @@ public class ActivityMeetingRepository implements PanacheRepositoryBase<Activity
     }
 
     public MeetingReport reportOverview(ReportFilters filters) {
-
+        LocalDateTime now= LocalDateTime.now();
          // obtain all meetings that follow the criteria
         List<ActivityMeeting> meetings = listWithFilters(filters);
+        Log.info("queryTime:"+ ChronoUnit.MILLIS.between(now,LocalDateTime.now()));
+
 
         // init all local variables for calculating the stats
         MeetingReport result = new MeetingReport();
@@ -216,7 +222,6 @@ public class ActivityMeetingRepository implements PanacheRepositoryBase<Activity
                     });
         });
         result.setMeetingsPerChannelPerPeriod(meetingsPerChannelPerPeriod);
-
 
         // Map<String, Integer> meetingsResults;
 

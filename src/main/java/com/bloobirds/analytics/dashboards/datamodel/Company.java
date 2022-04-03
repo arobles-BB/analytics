@@ -78,10 +78,10 @@ public class Company {
 
     @ElementCollection(fetch = FetchType.EAGER) // Problemas con Jackson, Quarkus, Envers...
     @CollectionTable(
-            joinColumns = {@JoinColumn(name = "BBobjectID"), @JoinColumn(name = "tenantID")}
+            joinColumns = {@JoinColumn(name = "ATBBobjectID"), @JoinColumn(name = "ATtenantID")}
     )
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "BBObjectID")
+    @JoinColumn(name = "ATBBObjectID")
     @Cascade(value= {org.hibernate.annotations.CascadeType.ALL})
     @ToString.Exclude
     public Map<String, ExtendedAttribute> attributes;
