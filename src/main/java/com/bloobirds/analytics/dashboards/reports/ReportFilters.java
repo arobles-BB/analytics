@@ -113,19 +113,19 @@ public class ReportFilters {
 
         if (query.isEmpty()) return null; // we have no filters & no aggregation so let's select all
 
-        String groupBy="";
-        switch (filters.getGroupBy()) {
-            case Scenario -> groupBy = ", scenario";
-            case User -> groupBy = ", user";
-            case ICP -> groupBy = ", icp";
-            case Source -> groupBy = ", source";
-            case AssignedTo -> groupBy = ", assignedto";
-            case TargetMarket -> groupBy = ", targetmarket";
-            default -> {
-                break; // @todo resolve how to deal with this. anything could come from company's fields... same for lead
-            }
-        }
-        if (filters.getGroupBy() != GroupBy.None) query.append(" group by bbobjectid, tenantid").append(groupBy);
+//        String groupBy="";
+//        switch (filters.getGroupBy()) {
+//            case Scenario -> groupBy = ", scenario";
+//            case User -> groupBy = ", user";
+//            case ICP -> groupBy = ", icp";
+//            case Source -> groupBy = ", source";
+//            case AssignedTo -> groupBy = ", assignedto";
+//            case TargetMarket -> groupBy = ", targetmarket";
+//            default -> {
+//                break; // @todo resolve how to deal with this. anything could come from company's fields... same for lead
+//            }
+//        }
+//        if (filters.getGroupBy() != GroupBy.None) query.append(" group by bbobjectid, tenantid").append(groupBy);
 
         return query.toString();
     }

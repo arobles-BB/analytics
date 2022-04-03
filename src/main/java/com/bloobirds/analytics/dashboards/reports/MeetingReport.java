@@ -1,21 +1,25 @@
 package com.bloobirds.analytics.dashboards.reports;
 
+import com.bloobirds.analytics.dashboards.datamodel.ActivityMeeting;
 import lombok.Data;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Data
 public class MeetingReport {
 
-    private int totalMeetings;
-    private Map<Integer, Integer> meetingsPerSegment;
+    public int totalMeetings;
+    public Map<String,Integer> totalMeetingsGroupedBy;
+    public Map<Integer, Integer> meetingsPerSegment;
 
-    private Map<String, Integer> meetingsPerChannel;
-    private Map<Integer, Map<String, Integer>> meetingsPerChannelPerPeriod;
+    public Map<String, Integer> meetingsPerChannel;
+    Map<String,Map<String, Integer>> perChannelGroupedBy;
+    public Map<Integer, Map<String, Integer>> meetingsPerChannelPerPeriod;
 
-    private Map<Integer, Integer> meetingsResults;
-    private HashMap<Integer, HashMap<Integer, Integer>>  meetingsResultsPerPeriod;
+    public Map<Integer, Integer> meetingsResults;
+    public HashMap<Integer, HashMap<Integer, Integer>>  meetingsResultsPerPeriod;
 
 }

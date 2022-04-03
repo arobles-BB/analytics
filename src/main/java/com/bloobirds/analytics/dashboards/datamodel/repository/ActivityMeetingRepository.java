@@ -7,7 +7,6 @@ import com.bloobirds.analytics.dashboards.datamodel.abstraction.ExtendedAttribut
 import com.bloobirds.analytics.dashboards.datamodel.abstraction.logicroles.ActivityMeetingLogicRoles;
 import com.bloobirds.analytics.dashboards.reports.MeetingReport;
 import com.bloobirds.analytics.dashboards.reports.ReportFilters;
-import com.bloobirds.analytics.dashboards.reports.abstraction.GroupBy;
 import com.bloobirds.analytics.dashboards.reports.abstraction.Segment;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
@@ -15,7 +14,6 @@ import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.temporal.IsoFields;
@@ -69,7 +67,7 @@ public class ActivityMeetingRepository implements PanacheRepositoryBase<Activity
             a.objectID= id;
             a.date= Date.from(LocalDate.now().plus(Period.ofDays(r.nextInt(15))).atStartOfDay(ZoneId.systemDefault()).toInstant());
             a.scenario=BBObjectID.createSample(tenantID).getBBobjectID();
-            a.targetMarket=BBObjectID.createSample(tenantID).getBBobjectID();
+            a.targetMarket="TM-"+r.nextInt(4);//BBObjectID.createSample(tenantID).getBBobjectID();
             a.icp=BBObjectID.createSample(tenantID).getBBobjectID();
             a.channel= r.nextInt(4);
             a.channelID = BBObjectID.createSample(tenantID).getBBobjectID();
@@ -133,7 +131,34 @@ public class ActivityMeetingRepository implements PanacheRepositoryBase<Activity
 
         // Total meetings: we want only first meetings
         meetings= meetings.stream().filter(m -> m.opportunity==null).collect(Collectors.toList());
-        result.setTotalMeetings(meetings.size());
+                result.setTotalMeetings(meetings.size());
+
+        // Group By
+        Map<String,List<ActivityMeeting>> totalMeetingsGroupedBy=null;
+        switch (filters.getGroupBy()) {
+            case Scenario -> totalMeetingsGroupedBy = meetings.stream()
+                    .collect(Collectors.groupingBy(m -> m.scenario));
+            case User -> totalMeetingsGroupedBy = meetings.stream()
+                    .collect(Collectors.groupingBy(m -> m.user.objectID.getBBobjectID()));
+            case ICP -> totalMeetingsGroupedBy = meetings.stream()
+                    .collect(Collectors.groupingBy(m -> m.icp));
+            case Source -> totalMeetingsGroupedBy = meetings.stream()
+                    .collect(Collectors.groupingBy(m -> m.company.sourcePicklistID));
+            case AssignedTo -> totalMeetingsGroupedBy = meetings.stream()
+                    .collect(Collectors.groupingBy(m -> m.assignTo.objectID.getBBobjectID()));
+            case TargetMarket -> totalMeetingsGroupedBy = meetings.stream()
+                    .collect(Collectors.groupingBy(m -> m.targetMarket));
+            default -> {
+                break; // @todo resolve how to deal with this. anything could come from company's fields... same for lead
+            }
+        }
+        if (totalMeetingsGroupedBy != null) {
+            HashMap<String,Integer> groupedBy= new HashMap<>();
+            totalMeetingsGroupedBy.forEach((k, v) -> {
+                groupedBy.put(k, v.size());
+            });
+            result.setTotalMeetingsGroupedBy(groupedBy);
+        }
 
         // meetings per segment
         Map<Integer,List<ActivityMeeting>> mListPerSegment= meetings.stream()
@@ -141,11 +166,29 @@ public class ActivityMeetingRepository implements PanacheRepositoryBase<Activity
         mListPerSegment.keySet().forEach(k -> meetingsPerSegment.put(k,mListPerSegment.get(k).size()));
         result.setMeetingsPerSegment(meetingsPerSegment);
 
+        // meetings per segment per groupby ¿?
+
         // meetings per channel
         Map<Integer,List<ActivityMeeting>> mListPerChannel= meetings.stream()
                 .collect(Collectors.groupingBy(m -> m.channel)); // alt channelId willl include non-standard channels
         mListPerChannel.keySet().forEach(k -> meetingsPerChannel.put(mListPerChannel.get(k).get(0).channelID,mListPerChannel.get(k).size()));
         result.setMeetingsPerChannel(meetingsPerChannel);
+
+        // meetings per channel per GroupBy
+        Map<String,Map<String,List<ActivityMeeting>>> perChannelGroupedBy=new HashMap<>();
+        Map<String, Map<String, List<ActivityMeeting>>> finalPerChannelGroupedBy = perChannelGroupedBy;
+        Map<String, List<ActivityMeeting>> finalTotalMeetingsGroupedBy = totalMeetingsGroupedBy;
+        totalMeetingsGroupedBy.keySet().forEach(k -> {
+            finalPerChannelGroupedBy.put(k, finalTotalMeetingsGroupedBy.get(k).stream().collect(Collectors.groupingBy(m -> m.channelID)));
+        });
+
+        Map<String,Map<String, Integer>> data= new HashMap<>();
+        perChannelGroupedBy.forEach((k, v) -> {
+            HashMap<String,Integer> groupedBy= new HashMap<>();
+            v.forEach((ch,l) -> groupedBy.put(ch, l.size()));
+            data.put(k,groupedBy);
+        });
+        result.setPerChannelGroupedBy(data);
 
         // meetings Per Channel Per Period;
         mListPerChannel.forEach((k,v) -> {

@@ -7,14 +7,14 @@ import java.util.Map;
 
 @Data
 public class CompanyReport {
-    private int companiesStartedToProspect;
-    private Map<Integer, Integer> companiesStartedToProspectPerPeriod;
+    public int companiesStartedToProspect;
+    public Map<Integer, Integer> companiesStartedToProspectPerPeriod;
 
-    private Map<String, Integer> nuturingReasons;
-    private Map<Integer, Map<String, Integer>> nuturingReasonsPerPeriod;
+    public Map<String, Integer> nuturingReasons;
+    public Map<Integer, Map<String, Integer>> nuturingReasonsPerPeriod;
 
-    private Map<Integer, Integer> discardedReasons;
-    private HashMap<Integer, HashMap<Integer, Integer>>  discardedReasonsPerPeriod;
+    public Map<Integer, Integer> discardedReasons;
+    public Map<Integer, Map<Integer, Integer>>  discardedReasonsPerPeriod;
 
-    private Map<Integer, Integer> companiesByStatus;
+    public Map<Integer, Integer> companiesByStatus;
 }
