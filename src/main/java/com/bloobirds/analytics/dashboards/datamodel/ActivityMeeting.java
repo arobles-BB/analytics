@@ -23,7 +23,7 @@ public class ActivityMeeting extends Activity {
 
 
     public int meetingResult; // ACTIVITY__MEETING_RESULT
-    public String meetingResultID;
+    public String meetingResultID = "No Value"; // @todo fieldID could be null! negotiate "No Value" value
 
     public int meetingType; // MEETING__TYPE
     public String meetingTypeID;

@@ -16,10 +16,10 @@ public class MeetingReport {
     public Map<Integer, Integer> meetingsPerSegment;
 
     public Map<String, Integer> meetingsPerChannel;
-    Map<String,Map<String, Integer>> perChannelGroupedBy;
-    public Map<Integer, Map<String, Integer>> meetingsPerChannelPerPeriod;
+    public Map<String,Map<String, Integer>> perChannelGroupedBy;
+    public Map<String, Map<Integer, Integer>> meetingsPerChannelPerPeriod;
 
-    public Map<Integer, Integer> meetingsResults;
-    public HashMap<Integer, HashMap<Integer, Integer>>  meetingsResultsPerPeriod;
+    public Map<String, Integer> meetingsResults;
+    public Map<String, Map<Integer, Integer>>  meetingResultsPerPeriod;
 
 }
