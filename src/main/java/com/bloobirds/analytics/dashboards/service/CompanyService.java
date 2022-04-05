@@ -34,4 +34,11 @@ public class CompanyService {
         return companyRepository.listWithFilters(filters);
     }
 
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/List/Prospected")
+    public List<Company> listProspected(ReportFilters filters) {
+        return companyRepository.companiesProspected(filters);
+    }
 }
